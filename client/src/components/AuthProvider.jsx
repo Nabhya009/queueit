@@ -3,14 +3,13 @@ import { AuthContext } from "../hooks/AuthContext";
 import { getMe } from "../services/api";
 
 const AuthProvider = ({ children }) => {
-  // Lazy initial state instead of a synchronous setLoading(false) inside the
-  // effect below, for the case where there's no token to hydrate at all.
+  // Lazy initial state, so the no-token case never needs a synchronous
+  // setLoading(false) inside the effect below.
   const [loading, setLoading] = useState(() => Boolean(localStorage.getItem("token")));
   const [user, setUser] = useState(null);
 
-  // On first load, a token may already be sitting in localStorage from a
-  // previous session — try to hydrate the user from it before rendering
-  // anything that depends on auth state.
+  // A token from a previous session may be in localStorage; restore the
+  // user from it before anything that depends on auth state renders.
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {

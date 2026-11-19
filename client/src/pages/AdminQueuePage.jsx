@@ -2,8 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { getAdminQueueDetail, serveNext, skipNext, togglePause } from "../services/api";
 
-// Same polling approach and interval as QueuePage — see the Milestone 8
-// tradeoff note there for why polling over WebSocket.
+// Polling, same interval as QueuePage (see the note there on polling vs WebSocket).
 const POLL_INTERVAL_MS = 5000;
 
 const AdminQueuePage = () => {
@@ -23,12 +22,8 @@ const AdminQueuePage = () => {
     }
   }, [id]);
 
-  // Wrapping the call in its own async IIFE (rather than calling
-  // fetchDetail() directly) keeps the effect's own body free of any
-  // synchronous setState call, and the cancelled guard means setLoading
-  // never fires after this page has been navigated away from. tick() then
-  // runs immediately on mount and again every POLL_INTERVAL_MS so the
-  // viewer list and now-serving token stay live.
+  // tick() is an async wrapper so the effect body has no synchronous setState.
+  // `cancelled` stops setLoading from firing after the page is left.
   useEffect(() => {
     let cancelled = false;
 

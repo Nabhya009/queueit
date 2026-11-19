@@ -1,8 +1,8 @@
 const Queue = require("../models/Queue");
 const User = require("../models/User");
 
-// userId now comes from req.user.id, set by the protect middleware after
-// verifying the caller's JWT — no longer trusted from the request body/query.
+// userId always comes from req.user.id (set by protect after verifying the
+// JWT), never from the request body or query, so callers can't act as someone else.
 
 const countWaiting = (queue) =>
   queue.queue.filter((ticket) => ticket.status === "waiting").length;
@@ -26,10 +26,8 @@ const joinQueue = async (req, res) => {
     return res.status(409).json({ message: "User already has a waiting ticket in this queue" });
   }
 
-  // Atomically increment the shared token counter. MongoDB serializes
-  // updates to a single document, so two simultaneous joins can never
-  // read-and-increment the same lastToken value — each caller gets a
-  // unique, ordered token even under concurrent requests.
+  // $inc is atomic: MongoDB serializes updates to one document, so two
+  // simultaneous joins never get the same lastToken value.
   const updatedQueue = await Queue.findByIdAndUpdate(
     queueId,
     { $inc: { lastToken: 1 } },
@@ -79,10 +77,9 @@ const getQueueStatus = async (req, res) => {
     queueLength: countWaiting(queue),
   };
 
-  // Served/skipped entries are never removed from queue.queue (only a
-  // "leave" while still waiting pulls the entry out) — so a user who has
-  // been through this queue before can have multiple entries. The current
-  // waiting ticket, if any, always takes priority over older ones.
+  // Served/skipped entries stay in queue.queue (only "leave" removes one),
+  // so a returning user can have several entries. A waiting ticket takes
+  // priority over older ones.
   const waitingTicket = queue.queue.find(
     (entry) => entry.userId.toString() === userId && entry.status === "waiting"
   );
@@ -124,9 +121,7 @@ const leaveQueue = async (req, res) => {
     return res.status(404).json({ message: "No waiting ticket for this user in this queue" });
   }
 
-  // Removing the entry is the whole story: everyone behind it now has a
-  // smaller index, and position is always computed from the array at read
-  // time, so there is nothing left to renumber.
+  // Nothing to renumber: position is computed from the array at read time.
   await Queue.updateOne(
     { _id: queueId },
     { $pull: { queue: { userId, status: "waiting" } } }

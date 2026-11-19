@@ -2,10 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { getQueueStatus, joinQueue, leaveQueue } from "../services/api";
 
-// Polling interval for live status updates. Chosen over WebSocket per the
-// Milestone 8 tradeoff: a few seconds of staleness on a position/ETA
-// display is fine, and this needs no new dependency or persistent
-// connection to manage.
+// Polling instead of WebSocket: a few seconds of delay on position/ETA is
+// acceptable, and polling needs no extra library or open connection.
 const POLL_INTERVAL_MS = 5000;
 
 const QueuePage = () => {
@@ -25,12 +23,8 @@ const QueuePage = () => {
     }
   }, [id]);
 
-  // Wrapping the call in its own async IIFE (rather than calling
-  // fetchStatus() directly) keeps the effect's own body free of any
-  // synchronous setState call, and the cancelled guard means setLoading
-  // never fires after this page has been navigated away from. tick() then
-  // runs immediately on mount and again every POLL_INTERVAL_MS for live
-  // updates, cleared on unmount/id change like any other interval.
+  // tick() is an async wrapper so the effect body has no synchronous setState.
+  // `cancelled` stops setLoading from firing after the page is left.
   useEffect(() => {
     let cancelled = false;
 

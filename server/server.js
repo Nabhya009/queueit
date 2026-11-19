@@ -17,10 +17,8 @@ connectDB();
 
 const app = express();
 
-// Restricted to CLIENT_URL rather than left wide open, now that a real
-// production frontend origin exists to restrict it to. There are no
-// cookies involved (auth is a Bearer token), so this is about not
-// accepting requests from arbitrary origins, not CSRF.
+// Restricted to CLIENT_URL so other origins can't call the API from a
+// browser. Auth is a Bearer token, not a cookie, so this isn't about CSRF.
 app.use(cors({ origin: process.env.CLIENT_URL }));
 app.use(express.json());
 app.use(passport.initialize());

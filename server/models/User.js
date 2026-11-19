@@ -14,8 +14,8 @@ const userSchema = new mongoose.Schema(
     // record on OAuth login instead of a local password.
     googleId: { type: String, required: true, unique: true },
     role: { type: String, enum: ["user", "admin"], default: "user" },
-    // Snapshot of past queue tickets, appended when a ticket is served/skipped/left.
-    // Kept separate from the live Queue.queue[] entry, which is removed once resolved.
+    // Snapshot of past tickets, appended when one is served/skipped/left.
+    // "left" tickets are pulled out of Queue.queue[], so this is their only record.
     history: [
       {
         queueId: { type: mongoose.Schema.Types.ObjectId, ref: "Queue" },

@@ -1,7 +1,5 @@
-// One-off dev script: creates fixture data so you can see real documents in
-// MongoDB Compass and manually test endpoints before the frontend exists.
-// Safe to re-run — each document is upserted on a unique field instead of
-// being inserted again.
+// Dev-only fixture data (one venue, queue and test user). Safe to re-run:
+// each document is upserted rather than inserted again.
 const dotenv = require("dotenv");
 const connectDB = require("../config/db");
 const Venue = require("../models/Venue");

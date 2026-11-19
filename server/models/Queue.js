@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
 
-// Embedded subdocument: one entry per person currently waiting in this
-// queue. Lives inside Queue.queue[] instead of a separate Ticket
-// collection, per the spec's data model.
+// Embedded subdocument: one ticket per join, kept in Queue.queue[] instead of
+// a separate collection, per the spec's data model. Served/skipped tickets
+// stay in the array; only "leave" removes one. _id is off, so tokenNumber
+// identifies a ticket.
 const userQueueObjectSchema = new mongoose.Schema(
   {
     userId: {

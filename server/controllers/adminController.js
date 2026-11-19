@@ -1,9 +1,8 @@
 const Queue = require("../models/Queue");
 const User = require("../models/User");
 
-// TEMPORARY: no auth check yet (Milestone 5). Anyone can currently hit
-// these routes — protect() + requireAdmin() will be applied to the whole
-// admin router once that middleware exists.
+// Auth is not checked in these handlers: routes/adminRoutes.js applies
+// protect + requireAdmin to the whole router.
 
 const pickNextWaitingTicket = (queue) => {
   const waitingTickets = queue.queue.filter((ticket) => ticket.status === "waiting");
@@ -59,9 +58,8 @@ const advanceQueue = async (req, res, newStatus, historyStatus) => {
 const getQueueDetail = async (req, res) => {
   const { id: queueId } = req.params;
 
-  // Populated only here, not on the public venue-listing endpoint, since
-  // waiting users' names/emails are only appropriate for an admin who owns
-  // this queue to see.
+  // Populated only here, not on the public venue-listing endpoint: names
+  // and emails of waiting users must only be visible to admins.
   const queue = await Queue.findById(queueId).populate("queue.userId", "name email");
   if (!queue) {
     return res.status(404).json({ message: "Queue not found" });

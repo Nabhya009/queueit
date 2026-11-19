@@ -4,9 +4,8 @@ const User = require("../models/User");
 const signToken = (user) =>
   jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-// Runs after passport.authenticate('google') has already found/created the
-// User and attached it as req.user. This just converts that into our own
-// JWT and hands the browser back to the React app with it.
+// passport.authenticate('google') has already found/created the User and set
+// req.user; this swaps it for our own JWT and redirects back to the React app.
 const googleCallback = (req, res) => {
   const token = signToken(req.user);
   res.redirect(`${process.env.CLIENT_URL}/auth/callback?token=${token}`);
