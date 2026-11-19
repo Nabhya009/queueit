@@ -129,3 +129,7 @@ Then:
 - **Serve / Skip** — the update filter uses `$elemMatch` on the ticket's `tokenNumber` and `status: "waiting"`, so two admins clicking at once can't both act on the same ticket; the second gets a 409.
 - **Queue position** — never stored, always computed at read time from ticket order. This means a user leaving from the middle of the queue needs no renumbering of anyone else.
 - **Live updates via polling**, not WebSocket — re-fetches status every 5 seconds. Chosen for simplicity (no new dependencies, no persistent connection to manage) over the added complexity and deployment constraints of a WebSocket-based approach, given a few seconds of staleness is acceptable for this use case.
+
+## AI assistance
+
+Claude was used during development to assist with documentation, code comments, and some implementation/debugging tasks.
