@@ -29,8 +29,13 @@ const advanceQueue = async (req, res, newStatus, historyStatus) => {
   // changed this ticket's status between our read and this write, the
   // filter no longer matches and matchedCount is 0 — so two admins can
   // never both "serve" the same ticket.
+  // $elemMatch puts both conditions on the SAME array element, which is the
+  // one queue.$ then updates. Tickets have no _id, so tokenNumber identifies it.
   const updateResult = await Queue.updateOne(
-    { _id: queueId, "queue._id": nextTicket._id, "queue.status": "waiting" },
+    {
+      _id: queueId,
+      queue: { $elemMatch: { tokenNumber: nextTicket.tokenNumber, status: "waiting" } },
+    },
     { $set: { "queue.$.status": newStatus, nowServing: nextTicket.tokenNumber } }
   );
 
